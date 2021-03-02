@@ -1,0 +1,110 @@
+.data
+msg0 : .asciiz "length of postfx expression: "
+msg1 : .asciiz "\nType in the postfix expression char: "
+msg2 : .asciiz "\nValue of the expression is: "
+errorm: .asciiz "\ninvalied char input\n"
+#minus: .asciiz '-'
+#plus: .asciiz '+'
+#multi: .asciiz '*'
+
+
+
+.text
+.globl main
+.ent main
+main:
+
+	li $v0, 4
+	la $a0, msg0
+	syscall
+
+	li $v0, 5
+	syscall
+	move $s4, $v0
+	
+	
+	loop:
+	beqz $s4, exit
+	
+	li $v0 , 4
+	la $a0, msg1
+	syscall
+	
+	li $v0, 12
+	syscall
+	move $t0, $v0
+	
+	beq $t0, 45, subit   #char is saved in ascii code in registers
+	beq $t0, 43, addit
+	beq $t0, 42, multit
+	
+	blt $t0, 48, error  #check if char is not a digit (ascii<'0')
+	bgt $t0, 57, error  #check if char is not a digit (ascii>'9')
+	
+	subi $sp, $sp , 4
+	subi $t0, $t0, 48
+	sw $t0, 0($sp)    
+
+	subi $s4, $s4, 1
+	j loop
+	
+	error:
+	
+	li $v0 , 4
+	la $a0, errorm
+	syscall
+	
+	li $v0 , 10
+	syscall
+	
+	exit:
+	
+	li $v0, 4
+	la $a0, msg2
+	syscall
+	
+	la $a0 , 0($sp)
+	li $v0, 4
+	syscall
+	
+	li $v0 , 10
+	syscall
+	
+	subit:
+	lw $t3, 0($sp)
+	addi $sp, $sp, 4
+	lw $t4, 0($sp)
+	addi $sp, $sp, 4
+	sub $t4, $t4, $t3
+	subi $sp, $sp , 4
+	sw $t4, 0($sp)
+	subi $s4, $s4, 1
+	b loop
+	
+	addit:
+	lw $t3, 0($sp)
+	addi $sp, $sp, 4
+	lw $t4, 0($sp)
+	addi $sp, $sp, 4
+	add $t4, $t4, $t3
+	subi $sp, $sp , 4
+	sw $t4, 0($sp)
+	subi $s4, $s4, 1
+	b loop
+	
+	multit:
+	lw $t3, 0($sp)
+	addi $sp, $sp, 4
+	lw $t4, 0($sp)
+	addi $sp, $sp, 4
+	add $t4, $t4, $t3
+	subi $sp, $sp , 4
+	sw $t4, 0($sp)
+	subi $s4, $s4, 1
+	b loop
+	
+.end main
+
+
+ 
+ 
